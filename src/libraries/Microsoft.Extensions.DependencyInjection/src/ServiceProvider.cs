@@ -156,12 +156,9 @@ namespace Microsoft.Extensions.DependencyInjection
             _callSiteValidator?.ValidateCallSite(callSite);
         }
 
-        private void OnResolve(ServiceCallSite? callSite, IServiceScope scope)
+        private void OnResolve(Type serviceType, IServiceScope scope)
         {
-            if (callSite != null)
-            {
-                _callSiteValidator?.ValidateResolution(callSite, scope, Root);
-            }
+            _callSiteValidator?.ValidateResolution(serviceType, scope, Root);
         }
 
         internal object? GetService(ServiceIdentifier serviceIdentifier, ServiceProviderEngineScope serviceProviderEngineScope)
@@ -170,8 +167,9 @@ namespace Microsoft.Extensions.DependencyInjection
             {
                 ThrowHelper.ThrowObjectDisposedException();
             }
+
             ServiceAccessor serviceAccessor = _serviceAccessors.GetOrAdd(serviceIdentifier, _createServiceAccessor);
-            OnResolve(serviceAccessor.CallSite, serviceProviderEngineScope);
+            OnResolve(serviceAccessor.CallSite?.ServiceType!, serviceProviderEngineScope);
             DependencyInjectionEventSource.Log.ServiceResolved(this, serviceIdentifier.ServiceType);
             object? result = serviceAccessor.RealizedService?.Invoke(serviceProviderEngineScope);
             System.Diagnostics.Debug.Assert(result is null || CallSiteFactory.IsService(serviceIdentifier));
@@ -214,8 +212,7 @@ namespace Microsoft.Extensions.DependencyInjection
                     return new ServiceAccessor { CallSite = callSite, RealizedService = scope => value };
                 }
 
-                Func<ServiceProviderEngineScope, object?> realizedService = _engine.RealizeService(callSite);
-                return new ServiceAccessor { CallSite = callSite, RealizedService = realizedService };
+                return new ServiceAccessor { CallSite = callSite, RealizedService = _engine.RealizeService(callSite) };
             }
             return new ServiceAccessor { CallSite = callSite, RealizedService = _ => null };
         }

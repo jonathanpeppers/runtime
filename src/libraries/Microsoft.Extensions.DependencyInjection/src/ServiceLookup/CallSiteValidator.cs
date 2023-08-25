@@ -10,33 +10,32 @@ namespace Microsoft.Extensions.DependencyInjection.ServiceLookup
     internal sealed class CallSiteValidator : CallSiteVisitor<CallSiteValidator.CallSiteValidatorState, Type?>
     {
         // Keys are services being resolved via GetService, values - first scoped service in their call site tree
-        private readonly ConcurrentDictionary<ServiceCacheKey, Type> _scopedServices = new ConcurrentDictionary<ServiceCacheKey, Type>();
+        private readonly ConcurrentDictionary<Type, Type> _scopedServices = new ConcurrentDictionary<Type, Type>();
 
         public void ValidateCallSite(ServiceCallSite callSite)
         {
             Type? scoped = VisitCallSite(callSite, default);
             if (scoped != null)
             {
-                _scopedServices[callSite.Cache.Key] = scoped;
+                _scopedServices[callSite.ServiceType] = scoped;
             }
         }
 
-        public void ValidateResolution(ServiceCallSite callSite, IServiceScope scope, IServiceScope rootScope)
+        public void ValidateResolution(Type serviceType, IServiceScope scope, IServiceScope rootScope)
         {
             if (ReferenceEquals(scope, rootScope)
-                && _scopedServices.TryGetValue(callSite.Cache.Key, out Type? scopedService))
+                && _scopedServices.TryGetValue(serviceType, out Type? scopedService))
             {
-                Type serviceType = callSite.ServiceType;
                 if (serviceType == scopedService)
                 {
                     throw new InvalidOperationException(
-                        SR.Format(SR.DirectScopedResolvedFromRootException, callSite.ServiceType,
+                        SR.Format(SR.DirectScopedResolvedFromRootException, serviceType,
                             nameof(ServiceLifetime.Scoped).ToLowerInvariant()));
                 }
 
                 throw new InvalidOperationException(
                     SR.Format(SR.ScopedResolvedFromRootException,
-                        callSite.ServiceType,
+                        serviceType,
                         scopedService,
                         nameof(ServiceLifetime.Scoped).ToLowerInvariant()));
             }

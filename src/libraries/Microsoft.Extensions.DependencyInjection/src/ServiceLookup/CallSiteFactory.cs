@@ -348,9 +348,13 @@ namespace Microsoft.Extensions.DependencyInjection.ServiceLookup
                         callSitesByIndex.Add(new(index, callSite));
                     }
                 }
-                ResultCache resultCache = (cacheLocation == CallSiteResultCacheLocation.Scope || cacheLocation == CallSiteResultCacheLocation.Root)
-                    ? new ResultCache(cacheLocation, callSiteKey)
-                    : new ResultCache(CallSiteResultCacheLocation.None, callSiteKey);
+
+                ResultCache resultCache = ResultCache.None;
+                if (cacheLocation == CallSiteResultCacheLocation.Scope || cacheLocation == CallSiteResultCacheLocation.Root)
+                {
+                    resultCache = new ResultCache(cacheLocation, callSiteKey);
+                }
+
                 return _callSiteCache[callSiteKey] = new IEnumerableCallSite(resultCache, itemType, callSites);
             }
             finally
