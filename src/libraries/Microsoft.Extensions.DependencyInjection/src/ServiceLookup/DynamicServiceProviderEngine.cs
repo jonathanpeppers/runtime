@@ -20,6 +20,8 @@ namespace Microsoft.Extensions.DependencyInjection.ServiceLookup
 
         public override Func<ServiceProviderEngineScope, object?> RealizeService(ServiceCallSite callSite)
         {
+            Console.WriteLine($"RealizeService called: {callSite.ServiceType}");
+
             int callCount = 0;
             return scope =>
             {
@@ -29,6 +31,8 @@ namespace Microsoft.Extensions.DependencyInjection.ServiceLookup
 
                 if (Interlocked.Increment(ref callCount) == 2)
                 {
+                    Console.WriteLine($"RealizeService, using S.R.E: {callSite.ServiceType}");
+
                     // Don't capture the ExecutionContext when forking to build the compiled version of the
                     // resolve function
                     _ = ThreadPool.UnsafeQueueUserWorkItem(_ =>
