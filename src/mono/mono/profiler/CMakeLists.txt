@@ -41,6 +41,13 @@ if(NOT DISABLE_LIBS)
     install(TARGETS mono-profiler-aot-static LIBRARY)
   endif()
 
+  if(HOST_ANDROID)
+    add_library(mono-profiler-aot SHARED aot.c helper.c)
+    target_link_libraries(mono-profiler-aot PRIVATE monoapi)
+    set_target_properties(mono-profiler-aot PROPERTIES OUTPUT_NAME mono-profiler-aot)
+    install(TARGETS mono-profiler-aot LIBRARY)
+  endif()
+
   if(HOST_BROWSER)
     add_library(mono-profiler-browser-static STATIC browser.c)
     target_link_libraries(mono-profiler-browser-static PRIVATE monoapi)
