@@ -30303,6 +30303,15 @@ void gc_heap::mark_phase (int condemned_gen_number)
         drain_mark_queue();
         fire_mark_event (ETW::GC_ROOT_HANDLES, current_promoted_bytes, last_promoted_bytes);
 
+#ifdef FEATURE_GCBRIDGE
+        dprintf(3,("GCBridge to mark handles"));
+        GCScan::GcScanWithBridge(GCHeap::Promote,
+                                    condemned_gen_number, max_generation,
+                                    &sc);
+        drain_mark_queue();
+        // fire_mark_event (ETW::???, current_promoted_bytes, last_promoted_bytes);
+#endif // FEATURE_GCBRIDGE
+
         if (!full_p)
         {
 #ifdef USE_REGIONS
