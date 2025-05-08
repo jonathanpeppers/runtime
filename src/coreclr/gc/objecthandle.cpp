@@ -1673,7 +1673,7 @@ void Ref_TraceGCBridge(uint32_t condemned, uint32_t maxgen, ScanContext* sc, Ref
         sccs->Context = (uintptr_t*)malloc(sizeof(uintptr_t) * sccs->Count);
 
         uintptr_t* curr = sccs->Context;
-        for (auto& entry : list)
+        for (auto const& entry : list)
         {
             // Promote the object and let the bridge indicate when the
             // object is actually dead.
