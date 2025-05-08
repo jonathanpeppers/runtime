@@ -368,7 +368,7 @@ void CALLBACK CheckPromoted(_UNCHECKED_OBJECTREF *pObjRef, uintptr_t *pExtraInfo
     Object **ppRef = (Object **)pObjRef;
     if (!g_theGCHeap->IsPromoted(*ppRef))
     {
-        LOG((LF_GC, LL_INFO100, LOG_HANDLE_OBJECT_CLASS("Severing Weak-", pObjRef, "to unreachable ", *pObjRef)));
+        LOG((LF_GC, LL_INFO100, LOG_HANDLE_OBJECT_CLASS("Severing Weak-", pObjRef, "to unreachable ", *ppRef)));
 
         *ppRef = NULL;
     }
